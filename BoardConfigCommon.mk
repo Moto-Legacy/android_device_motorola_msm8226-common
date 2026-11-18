@@ -147,14 +147,15 @@ BOARD_FLASH_BLOCK_SIZE := 131072
 # Android 16 doesn't fit in the stock system partitions uncompressed: with
 # the stock partition table, keep everything (vendor and product too) in a
 # squashfs system. gzip is the only compressor both this kernel and
-# mksquashfs support. Repartitioned devices (TARGET_MSM8226_REPARTITIONED,
-# set by the device) get an ext4 system and a vendor partition instead.
+# mksquashfs support. Devices with retrofit dynamic partitions
+# (TARGET_MSM8226_DYNAMIC_PARTITIONS, set by the device: super spans system
+# and cache, as the bootloader only takes Motorola signed partition tables)
+# get ext4 system and vendor logical partitions instead.
 TARGET_COPY_OUT_PRODUCT := system/product
-ifeq ($(TARGET_MSM8226_REPARTITIONED),true)
+ifeq ($(TARGET_MSM8226_DYNAMIC_PARTITIONS),true)
 TARGET_COPY_OUT_VENDOR := vendor
 BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
-BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
 else
 TARGET_COPY_OUT_VENDOR := system/vendor
 BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := squashfs
@@ -237,7 +238,7 @@ WPA_SUPPLICANT_VERSION := VER_0_8_X
 # Power
 TARGET_USES_INTERACTION_BOOST := true
 
-# /metadata: aconfigd keeps the feature flag storage there. With the stock
-# partition table it's the old cache partition, repartitioned devices have
-# their own.
+# /metadata: aconfigd keeps the feature flag storage there. It's the old
+# cache partition, or a logical partition in super on devices with dynamic
+# partitions.
 BOARD_ROOT_EXTRA_FOLDERS += metadata
