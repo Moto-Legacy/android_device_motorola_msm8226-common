@@ -60,8 +60,8 @@ on fs
     # Create a dump of PDS and mount it
     wait /dev/block/platform/msm_sdcc.1/by-name/pds
     start dump_pds
-    wait /metadata/pds-dump.img
-    mount ext3 loop@/metadata/pds-dump.img /pds
+    wait ${ro.vendor.pds_dump:-/metadata/pds-dump.img}
+    mount ext3 loop@${ro.vendor.pds_dump:-/metadata/pds-dump.img} /pds
     restorecon /pds
     
     # Start HW service manager early

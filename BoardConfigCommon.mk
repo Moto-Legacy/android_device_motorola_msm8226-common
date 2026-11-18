@@ -144,14 +144,22 @@ MALLOC_SVELTE := true
 # Partitions
 BOARD_FLASH_BLOCK_SIZE := 131072
 
-# Android 16 doesn't fit in the stock system partitions uncompressed:
-# keep everything (vendor and product too) in a squashfs system, until the
-# devices get repartitioned. gzip is the only compressor both this kernel
-# and mksquashfs support. The cache partition stays /cache.
-TARGET_COPY_OUT_VENDOR := system/vendor
+# Android 16 doesn't fit in the stock system partitions uncompressed: with
+# the stock partition table, keep everything (vendor and product too) in a
+# squashfs system. gzip is the only compressor both this kernel and
+# mksquashfs support. Repartitioned devices (TARGET_MSM8226_REPARTITIONED,
+# set by the device) get an ext4 system and a vendor partition instead.
 TARGET_COPY_OUT_PRODUCT := system/product
+ifeq ($(TARGET_MSM8226_REPARTITIONED),true)
+TARGET_COPY_OUT_VENDOR := vendor
+BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
+else
+TARGET_COPY_OUT_VENDOR := system/vendor
 BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := squashfs
 BOARD_SYSTEMIMAGE_SQUASHFS_COMPRESSOR := gzip
+endif
 
 # Keep the dex of privileged apps compressed to save space in system
 DONT_UNCOMPRESS_PRIV_APPS_DEXS := true
@@ -170,7 +178,7 @@ TARGET_NO_RECOVERY := true
 # Not A/B (Android 16 defaults to it): build a block based OTA zip
 AB_OTA_UPDATER := false
 BOARD_NO_SECURE_DISCARD := true
-TARGET_RECOVERY_FSTAB := $(VENDOR_PATH)/rootdir/etc/fstab.qcom
+TARGET_RECOVERY_FSTAB ?= $(VENDOR_PATH)/rootdir/etc/fstab.qcom
 TARGET_RECOVERY_DENSITY := hdpi
 TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 TARGET_USERIMAGES_USE_EXT4 := true
@@ -229,6 +237,7 @@ WPA_SUPPLICANT_VERSION := VER_0_8_X
 # Power
 TARGET_USES_INTERACTION_BOOST := true
 
-# The old cache partition is mounted as /metadata (aconfigd keeps the
-# feature flag storage there; Android 16 doesn't use /cache)
+# /metadata: aconfigd keeps the feature flag storage there. With the stock
+# partition table it's the old cache partition, repartitioned devices have
+# their own.
 BOARD_ROOT_EXTRA_FOLDERS += metadata
