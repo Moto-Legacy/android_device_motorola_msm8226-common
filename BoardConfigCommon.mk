@@ -174,7 +174,11 @@ BOARD_USES_QCOM_HARDWARE := true
 # Recovery
 # The Android 16 recovery (~18 MB with the kernel) doesn't fit the 10 MB
 # recovery partition; flash with TWRP instead.
+# No recovery partition use: Android 16's recovery doesn't fit in 10 MB.
+# MSM8226_BUILD_RECOVERY=true builds one anyway, to fastboot boot it.
+ifneq ($(MSM8226_BUILD_RECOVERY),true)
 TARGET_NO_RECOVERY := true
+endif
 
 # Not A/B (Android 16 defaults to it): build a block based OTA zip
 AB_OTA_UPDATER := false
