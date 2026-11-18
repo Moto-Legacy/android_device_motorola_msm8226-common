@@ -30,3 +30,8 @@ on property:recovery.perf.mode=0
     write /sys/devices/system/cpu/cpu1/online 0
     write /sys/devices/system/cpu/cpu2/online 0
     write /sys/devices/system/cpu/cpu3/online 0
+
+# No adb authorization in the recovery: it can't show the prompt, and
+# setting this later from the menu is denied by the property service
+on init
+    setprop ro.adb.secure.recovery 0
